@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -66,5 +67,28 @@ func main() {
 		os.Exit(1)
 	}
 	logrus.Infof("name::  ", name)
+	fmt.Printf("isEx:::   ", isEx)
+
+	copyOptions := lb.CopyOptions{
+		SystemContext: sys,
+	}
+	options := lb.ImportOptions{}
+	options.CopyOptions = copyOptions
+	options.Tag = "tarred"
+	var name string
+	logrus.Infof("Logrus___________-")
+
+	fmt.Printf("*****start******", time.Now())
+
+	name, err = runtime.Import(context.Background(), "/home/parsingh/go/src/github.com/learngo/fed.tar", &options)
+
+	fmt.Printf("*****stop******", time.Now())
+
+	if err != nil {
+		fmt.Printf("error oc::  ", err)
+		runtime.Shutdown(true)
+		os.Exit(1)
+	}
+	fmt.Printf("name::  ", name)
 	runtime.Shutdown(true)
 }
