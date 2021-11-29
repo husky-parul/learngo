@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -14,6 +13,10 @@ import (
 )
 
 func main() {
+
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.DebugLevel)
 
 	storeOptions := &storage.StoreOptions{
 		RunRoot:         "/run/containers/storage",
@@ -29,34 +32,39 @@ func main() {
 
 	runtime, err := lb.RuntimeFromStoreOptions(&lb.RuntimeOptions{SystemContext: systemContext}, storeOptions)
 	if err != nil {
-		fmt.Printf("error occured: ", err)
+		logrus.Errorf("error occured: ", err)
 		os.Exit(1)
 	}
 	sys := runtime.SystemContext()
-	fmt.Printf("runtime: ", sys.RegistriesDirPath)
+	logrus.Infof("runtime: ", sys.RegistriesDirPath)
 	isEx, _ := runtime.Exists("registry.fedoraproject.org/fedora")
-	fmt.Printf("isEx:::   ", isEx)
+	logrus.Infof("isEx:::   ", isEx)
 
 	copyOptions := lb.CopyOptions{
-		SystemContext: sys,
+		SystemContext:    sys,
+		DirForceCompress: true,
 	}
+	logrus.Infof("DirForceCompress: ", copyOptions.DirForceCompress)
 	options := lb.ImportOptions{}
 	options.CopyOptions = copyOptions
+	options.PolicyAllowStorage = true
+	options.InsecureSkipTLSVerify = types.OptionalBoolTrue
+	// options.ManifestMIMEType = options.ManifestMIMEType
+
 	options.Tag = "tarred"
 	var name string
-	logrus.Infof("Logrus___________-")
 
-	fmt.Printf("*****start******", time.Now())
+	logrus.Infof("*****start******", time.Now())
 
-	name, err = runtime.Import(context.Background(), "/home/parsingh/go/src/github.com/learngo/fed.tar", &options)
+	name, err = runtime.Import(context.Background(), "fed.tar", &options)
 
-	fmt.Printf("*****stop******", time.Now())
+	logrus.Infof("*****stop******", time.Now())
 
 	if err != nil {
-		fmt.Printf("error oc::  ", err)
+		logrus.Errorf("error oc::  ", err.Error())
 		runtime.Shutdown(true)
 		os.Exit(1)
 	}
-	fmt.Printf("name::  ", name)
+	logrus.Infof("name::  ", name)
 	runtime.Shutdown(true)
 }
