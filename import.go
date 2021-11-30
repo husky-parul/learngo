@@ -6,6 +6,7 @@ import (
 
 	"github.com/containers/image/v5/types"
 	"github.com/containers/storage"
+	"github.com/containers/storage/pkg/reexec"
 	"github.com/sirupsen/logrus"
 
 	lb "github.com/containers/common/libimage"
@@ -55,6 +56,9 @@ func importFromTar() {
 }
 
 func main() {
+	if reexec.Init() {
+		return
+	}
 	importFromTar()
 
 }
