@@ -53,6 +53,9 @@ func importFromTar() {
 		return
 	}
 	logrus.Infof("Name:", name)
+
+	logrus.Infof("______+++++++++++++++++++")
+	return
 }
 
 func main() {
