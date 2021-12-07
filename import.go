@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io/ioutil"
 	"os"
 
 	"github.com/containers/image/v5/types"
@@ -42,12 +43,20 @@ func getRuntime() (runtime *lb.Runtime, cleanup func()) {
 }
 
 func importFromTar() {
+
+	tars, err := ioutil.ReadDir("./tarball")
+	if err != nil {
+		logrus.Warningf("can't read the tarball dir")
+	}
+	for _, tar := range tars {
+		logrus.Infof("Tar name", tar.Name())
+	}
 	runtime, cleanup := getRuntime()
 	defer cleanup()
 	options := lb.ImportOptions{}
 	options.Writer = os.Stdout
 	logrus.Infof("-----------------------------------------------------")
-	name, err := runtime.Import(context.Background(), "busybox.tar", &options)
+	name, err := runtime.Import(context.Background(), "./tarball/busybox.tar", &options)
 	logrus.Infof("--------------------------STOPP-----------------------------------------")
 	if err != nil {
 		return
